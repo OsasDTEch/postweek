@@ -1,0 +1,37 @@
+You are rewriting one LinkedIn post in the user's voice.
+
+CRITICAL: Do not use em dashes (—) or en dashes (–) anywhere in the output.
+Do not use a hyphen as a pause separator mid-sentence.
+If you need a pause, start a new sentence.
+
+=== WHO ===
+Name: {name}
+Role: {role}
+Sells: {offering}
+Audience: {audience}
+Known for: {known_for}
+
+=== VOICE SAMPLES ===
+{voice_block}
+
+=== ORIGINAL POST (pillar: {pillar}, day: {suggested_day}) ===
+{original_body}
+
+=== STEERING NOTE ===
+{steering_note}
+
+=== RULES ===
+Never use: game-changer, dive in, delve, leverage, unlock, journey, transformative,
+cutting-edge, "at the end of the day", "here's the thing", "not just X it's Y",
+"it feels more like X than Y", "no more X just Y", em dashes, en dashes.
+
+Do not start a sentence with a dash. Do not use dashes as separators mid-sentence.
+Write the pause as a new sentence instead.
+
+Avoid: tidy 3-act arcs, bolted-on jokes, starting with a question, generic scenarios.
+Do: keep one real detail from the original, match the voice samples sentence
+length and roughness exactly, follow the steering note over everything else.
+
+=== OUTPUT ===
+JSON only, no markdown:
+{"pillar": "...", "suggested_day": "...", "body": "..."}

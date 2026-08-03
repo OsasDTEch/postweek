@@ -1,0 +1,58 @@
+[project]
+name = "postweek-backend"
+version = "1.0.0"
+description = "PostWeek API — LinkedIn posts in your voice. By Wisdom."
+requires-python = ">=3.11"
+dependencies = [
+    # Web framework
+    "fastapi==0.115.5",
+    "uvicorn[standard]==0.32.1",
+
+    # Database
+    "sqlalchemy[asyncio]==2.0.36",
+    "asyncpg==0.30.0",
+    "alembic==1.14.0",
+
+    # Auth
+    "python-jose[cryptography]==3.3.0",
+    "passlib[bcrypt]==1.7.4",
+    "bcrypt==4.0.1",
+    "python-multipart==0.0.12",
+
+    # AI / Agents
+    "pydantic-ai==0.0.15",
+    "httpx==0.28.1",
+
+    # Config / validation
+    "pydantic==2.10.3",
+    "pydantic[email]==2.10.3",
+    "pydantic-settings==2.6.1",
+    "python-dotenv==1.0.1",
+
+    # Utilities
+    "tenacity==9.0.0",
+    "ddgs==9.3.1",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6.0",
+    "mypy>=1.11.0",
+]
+
+# No build backend — this is a FastAPI app, not a library.
+# uv manages the venv directly without building a wheel.
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true

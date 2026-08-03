@@ -1,0 +1,59 @@
+# ---- Secrets & credentials ----
+.env
+.env.local
+.env.*.local
+.env.production
+backend/.env
+backend/.env.production
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Node / Frontend ----
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.local
+
+# ---- IDE ----
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ---- Logs ----
+*.log
+logs/
+
+# ---- DB ----
+*.sqlite3
+
+# ---- uv ----
+uv.lock
+
+# ---- Deployment ----
+*.pem
+nginx.conf.local
+docker-compose.override.yml

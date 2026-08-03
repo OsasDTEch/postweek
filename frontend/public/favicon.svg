@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <rect width="32" height="32" rx="7" fill="#0072c5"/>
+  <!-- Stylised "P" letterform with a subtle ink stroke tail -->
+  <path d="M10 24V8h6.5a5.5 5.5 0 0 1 0 11H10" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Ink tail extending from the base — gives it a pen/writing feel -->
+  <path d="M10 19 Q14 22 18 24" stroke="white" stroke-width="1.6" stroke-linecap="round" opacity="0.5"/>
+</svg>
