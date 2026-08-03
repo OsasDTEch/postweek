@@ -35,6 +35,7 @@ export default function Navbar() {
 
   const links = [
     { to: "/dashboard", label: "Dashboard" },
+    { to: "/x-threads", label: "X Threads" },
     { to: "/video-ideas", label: "Video ideas" },
     { to: "/onboarding", label: "My profile" },
   ];

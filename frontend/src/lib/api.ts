@@ -179,6 +179,27 @@ export const videoApi = {
   dismissIdea: (id: string) => apiClient.patch(`/video/ideas/${id}/dismiss`),
 };
 
+// ---------------------------------------------------------------------------
+// X Threads (native generation)
+// ---------------------------------------------------------------------------
+
+export const xThreadsApi = {
+  getProfile: () => apiClient.get("/x-threads/profile"),
+  updateProfile: (data: Record<string, string | null>) =>
+    apiClient.put("/x-threads/profile", data),
+  generate: () => apiClient.post("/x-threads/generate"),
+  latest: () => apiClient.get("/x-threads/latest"),
+  listBatches: () => apiClient.get("/x-threads/batches"),
+  getBatch: (batchId: string) => apiClient.get(`/x-threads/batch/${batchId}`),
+  deleteBatch: (batchId: string) => apiClient.delete(`/x-threads/batch/${batchId}`),
+  edit: (id: string, tweets: string[]) => apiClient.patch(`/x-threads/${id}`, { tweets }),
+  copy: (id: string) => apiClient.post(`/x-threads/${id}/copy`),
+};
+
+// ---------------------------------------------------------------------------
+// Posts
+// ---------------------------------------------------------------------------
+
 export const postsApi = {
   edit: (id: string, editedBody: string) =>
     apiClient.patch<Post>(`/posts/${id}`, { edited_body: editedBody }),

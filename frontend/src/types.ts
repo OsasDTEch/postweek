@@ -63,3 +63,36 @@ export interface TokenResponse {
 export interface MessageResponse {
   message: string;
 }
+
+// ---- X Threads (native, not repurposed) ----
+
+export interface XProfile {
+  id: string;
+  user_id: string;
+  handle: string | null;
+  niche: string | null;
+  target_audience: string | null;
+  past_tweets: string | null;
+  preferred_formats: string | null;
+  tone: string | null;
+}
+
+export type XThreadStatus = "draft" | "edited" | "copied";
+
+export interface XThreadItem {
+  id: string;
+  batch_id: string;
+  format: string;
+  topic: string;
+  tweets: string[];
+  trend_context: string | null;
+  status: XThreadStatus;
+  copied_at: string | null;
+  created_at: string;
+}
+
+export interface XThreadsBatch {
+  batch_id: string;
+  threads: XThreadItem[];
+  model_used: string | null;
+}

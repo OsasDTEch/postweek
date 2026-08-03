@@ -9,6 +9,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import DashboardPage from "./pages/DashboardPage";
+import XThreadsPage from "./pages/XThreadsPage";
 import VideoIdeasPage from "./pages/VideoIdeasPage";
 import Navbar from "./components/Navbar";
 
@@ -95,6 +96,7 @@ export default function App() {
           {/* Protected */}
           <Route path="/onboarding"   element={<RequireAuth><OnboardingPage /></RequireAuth>} />
           <Route path="/dashboard"    element={<RequireAuth><DashboardPage /></RequireAuth>} />
+          <Route path="/x-threads"    element={<RequireAuth><XThreadsPage /></RequireAuth>} />
           <Route path="/video-ideas"  element={<RequireAuth><VideoIdeasPage /></RequireAuth>} />
 
           {/* Catch-all — user is known at this point (loading is false) */}

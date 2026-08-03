@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import auth, posts, profile, style_samples, weeks, video
+from app.api import auth, posts, profile, style_samples, weeks, video, x_threads
 from app.core.config import settings
 
 logging.basicConfig(
@@ -44,6 +44,7 @@ app.include_router(style_samples.router)
 app.include_router(weeks.router)
 app.include_router(posts.router)
 app.include_router(video.router)
+app.include_router(x_threads.router)
 
 
 @app.get("/health", tags=["meta"])

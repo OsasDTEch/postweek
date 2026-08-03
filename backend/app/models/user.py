@@ -47,3 +47,9 @@ class User(Base):
     video_ideas: Mapped[list["VideoIdea"]] = relationship(  # noqa: F821
         "VideoIdea", back_populates="user", cascade="all, delete-orphan"
     )
+    x_profile: Mapped["XProfile"] = relationship(  # noqa: F821
+        "XProfile", back_populates="user", uselist=False, cascade="all, delete-orphan"
+    )
+    x_threads: Mapped[list["XThread"]] = relationship(  # noqa: F821
+        "XThread", back_populates="user", cascade="all, delete-orphan"
+    )
