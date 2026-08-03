@@ -22,11 +22,10 @@ const PILLAR_COLORS: Record<string, string> = {
 
 interface PostCardProps {
   post: Post;
-  regenCount: number;
   onUpdate: (post: Post) => void;
 }
 
-export default function PostCard({ post, regenCount, onUpdate }: PostCardProps) {
+export default function PostCard({ post, onUpdate }: PostCardProps) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(post.edited_body ?? post.body);
   const [regenOpen, setRegenOpen] = useState(false);

@@ -143,7 +143,7 @@ function ProfileForm({ profile, onSave }: { profile: VideoProfile; onSave: (p: V
     setSaving(true);
     setError("");
     try {
-      const { data } = await videoApi.updateProfile(form as Record<string, string | null>);
+      const { data } = await videoApi.updateProfile(form as unknown as Record<string, string | null>);
       onSave(data as VideoProfile);
     } catch {
       setError("Failed to save profile");

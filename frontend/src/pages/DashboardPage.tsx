@@ -259,7 +259,7 @@ export default function DashboardPage() {
             const hasX = xPosts.some((x) => x.pillar === post.pillar && x.suggested_day === post.suggested_day);
             return (
               <div key={post.id}>
-                <PostCard post={post} regenCount={week.regen_count} onUpdate={handlePostUpdate} />
+                <PostCard post={post} onUpdate={handlePostUpdate} />
                 <div className="mt-1 flex justify-end">
                   {!hasX ? (
                     <button
