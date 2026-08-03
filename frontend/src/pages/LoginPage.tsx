@@ -39,7 +39,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F7F8FA]">
+    <div className="flex min-h-screen bg-white dark:bg-gray-950">
       {/* Left panel — branding */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-gray-950 p-12">
         <span className="text-xl font-bold text-white">PostWeek</span>
@@ -59,7 +59,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right panel — form */}
-      <div className="flex flex-1 items-center justify-center px-6 py-12">
+      <div className="flex flex-1 items-center justify-center px-6 py-12 bg-white dark:bg-gray-950">
         <div className="w-full max-w-sm">
           {/* Mobile brand */}
           <div className="mb-8 text-center lg:hidden">
@@ -67,8 +67,8 @@ export default function LoginPage() {
             <p className="mt-1 text-sm text-gray-500">Write less. Post more.</p>
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome back</h1>
-          <p className="text-sm text-gray-500 mb-8">Sign in to your account</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Welcome back</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Sign in to your account</p>
 
           {error && (
             <div className="mb-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">

@@ -13,8 +13,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem("pw_theme");
     if (stored === "dark" || stored === "light") return stored;
-    // Default to system preference
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    // Default to light mode — don't follow system preference automatically
+    return "light";
   });
 
   // Apply / remove the "dark" class on <html> whenever theme changes
