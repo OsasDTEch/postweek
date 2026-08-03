@@ -23,8 +23,9 @@ origins = [settings.FRONTEND_URL]
 if settings.APP_ENV == "development":
     origins += ["http://localhost:5173", "http://127.0.0.1:5173"]
 else:
-    # Production — allow the DuckDNS domain and direct IP access
+    # Production — allow the DuckDNS domain over HTTPS and direct IP
     origins += [
+        "https://postweek.duckdns.org",
         "http://postweek.duckdns.org",
         "http://3.22.119.126",
     ]
