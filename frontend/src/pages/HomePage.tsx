@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 const FEATURES = [
   {
     title: "LinkedIn posts",
-    desc: "Five drafts a week, written in your voice. We learn your style from your past posts and match it — not a generic AI tone.",
+    desc: "Five drafts a week, written in your voice. We learn your style from your past posts and match it, not a generic AI tone.",
     detail: "Personal story · Opinion · How-to · Question · Behind the scenes",
   },
   {
@@ -105,7 +105,7 @@ export default function HomePage() {
           <span className="text-brand-600">Post more.</span>
         </h1>
         <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-gray-500">
-          PostWeek generates LinkedIn posts, X threads, and video ideas —
+          PostWeek generates LinkedIn posts, X threads, and video ideas,
           all matched to your voice and informed by what is trending right now.
         </p>
 
@@ -206,8 +206,8 @@ export default function HomePage() {
           </h2>
           <p className="mx-auto max-w-lg text-base leading-relaxed text-gray-400">
             Paste a few posts or video titles you have already published.
-            PostWeek maps your sentence length, vocabulary, and structure —
-            then applies that fingerprint to every LinkedIn post, X thread,
+            PostWeek maps your sentence length, vocabulary, and structure
+            and applies that fingerprint to every LinkedIn post, X thread,
             and video brief it generates. No generic AI voice. No em-dash drama.
             Just your style, across every platform.
           </p>

@@ -127,7 +127,7 @@ export default function OnboardingPage() {
           <div>
             <h1 className="text-xl font-semibold text-gray-900">About you</h1>
             <p className="mt-1 text-sm text-gray-500">
-              This shapes every post — be specific.
+              This shapes every post. Be specific.
             </p>
           </div>
 
@@ -136,7 +136,7 @@ export default function OnboardingPage() {
             { field: "role", label: "Role / title", placeholder: "Freelance UX designer" },
             { field: "offering", label: "What you do or sell", placeholder: "I help SaaS startups reduce churn through better onboarding" },
             { field: "audience", label: "Target audience", placeholder: "Early-stage SaaS founders and product leads" },
-            { field: "topics", label: "3–5 topics you're credible on", placeholder: "UX research, product strategy, B2B retention, remote work" },
+            { field: "topics", label: "3 to 5 topics you're credible on", placeholder: "UX research, product strategy, B2B retention, remote work" },
             { field: "known_for", label: "One thing you want to be known for", placeholder: "Making complex UX problems simple and shipping fast" },
           ].map(({ field, label, placeholder }) => (
             <div key={field}>
@@ -155,7 +155,7 @@ export default function OnboardingPage() {
             className="btn-primary w-full mt-2"
             onClick={() => setStep(2)}
           >
-            Continue →
+            Continue
           </button>
         </div>
       )}
@@ -166,7 +166,7 @@ export default function OnboardingPage() {
           <div>
             <h1 className="text-xl font-semibold text-gray-900">Your voice</h1>
             <p className="mt-1 text-sm text-gray-500">
-              Paste past posts so AI matches how you actually write — or pick a tone preset.
+              Paste past posts so AI matches how you actually write, or pick a tone preset.
             </p>
           </div>
 
@@ -195,10 +195,12 @@ export default function OnboardingPage() {
                   <p className="text-sm text-gray-700 whitespace-pre-wrap line-clamp-4">{s.content}</p>
                   <button
                     onClick={() => removeSample(s.id)}
-                    className="absolute right-2 top-2 text-gray-400 hover:text-red-500 text-lg leading-none"
+                    className="absolute right-2 top-2 text-gray-400 hover:text-red-500 transition"
                     aria-label="Remove sample"
                   >
-                    ×
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                   </button>
                 </div>
               ))}
@@ -251,13 +253,13 @@ export default function OnboardingPage() {
           )}
 
           <div className="flex gap-3 pt-2">
-            <button className="btn-ghost" onClick={() => setStep(1)}>← Back</button>
+            <button className="btn-ghost" onClick={() => setStep(1)}>Back</button>
             <button
               className="btn-primary flex-1"
               onClick={handleFinish}
               disabled={saving}
             >
-              {saving ? "Saving…" : "Finish setup →"}
+              {saving ? "Saving…" : "Finish setup"}
             </button>
           </div>
         </div>

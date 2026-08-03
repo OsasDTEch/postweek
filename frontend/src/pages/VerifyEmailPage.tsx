@@ -41,14 +41,18 @@ export default function VerifyEmailPage() {
       <div className="text-center max-w-sm">
         {state === "loading" && (
           <>
-            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
             <p className="text-sm text-gray-500">Verifying your email…</p>
           </>
         )}
 
         {state === "success" && (
           <>
-            <div className="text-5xl mb-4">✅</div>
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
+              <svg className="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
             <h1 className="text-xl font-semibold text-gray-900 mb-2">Email verified!</h1>
             <p className="text-sm text-gray-500 mb-6">{message}</p>
             <Link to="/login" className="btn-primary inline-flex">
@@ -59,7 +63,11 @@ export default function VerifyEmailPage() {
 
         {state === "error" && (
           <>
-            <div className="text-5xl mb-4">❌</div>
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+              <svg className="h-7 w-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
             <h1 className="text-xl font-semibold text-gray-900 mb-2">Verification failed</h1>
             <p className="text-sm text-gray-500 mb-6">{message}</p>
             <div className="flex flex-col gap-3 items-center">

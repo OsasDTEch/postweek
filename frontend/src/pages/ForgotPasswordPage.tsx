@@ -31,7 +31,11 @@ export default function ForgotPasswordPage() {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="w-full max-w-sm text-center">
-          <div className="text-5xl mb-4">📩</div>
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
+            <svg className="h-7 w-7 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
           <h1 className="text-xl font-semibold text-gray-900 mb-2">Check your email</h1>
           <p className="text-sm text-gray-500 mb-6">
             If an account with <strong>{email}</strong> exists, a password reset link has been
@@ -86,7 +90,7 @@ export default function ForgotPasswordPage() {
 
         <p className="mt-4 text-center text-sm text-gray-500">
           <Link to="/login" className="font-medium text-brand-600 hover:text-brand-700">
-            ← Back to sign in
+            Back to sign in
           </Link>
         </p>
       </div>

@@ -49,7 +49,7 @@ export default function LoginPage() {
             <span className="text-brand-400">All in one place.</span>
           </h2>
           <p className="text-gray-400 text-base leading-relaxed max-w-sm">
-            PostWeek generates content matched to your voice — not generic AI output.
+            PostWeek generates content matched to your voice, not generic AI output.
             Paste a few past posts and watch it learn how you write.
           </p>
         </div>

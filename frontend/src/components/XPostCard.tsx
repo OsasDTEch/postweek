@@ -221,7 +221,7 @@ export default function XPostCard({ post, onUpdate, onDismiss }: XPostCardProps)
             disabled={reRepurposing}
             className="btn-ghost text-xs px-3 py-1.5"
           >
-            {reRepurposing ? "Regenerating…" : "↺ Regenerate"}
+            {reRepurposing ? "Regenerating…" : "Regenerate"}
           </button>
           <div className="flex-1" />
           <button

@@ -211,7 +211,7 @@ export default function PostCard({ post, onUpdate }: PostCardProps) {
             className="btn-ghost text-xs px-3 py-1.5"
             aria-label="Regenerate post"
           >
-            ↺ Regenerate
+            Regenerate
           </button>
           <div className="flex-1" />
           <button

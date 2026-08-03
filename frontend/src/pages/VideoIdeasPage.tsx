@@ -179,7 +179,7 @@ function ProfileForm({ profile, onSave }: { profile: VideoProfile; onSave: (p: V
       </div>
 
       <div>
-        <label className="label">Niche <span className="font-normal text-gray-400">— be specific</span></label>
+        <label className="label">Niche <span className="font-normal text-gray-400">(be specific)</span></label>
         <input type="text" className="input" placeholder="AI tools for developers, Python automation, freelance design"
           value={form.niche ?? ""} onChange={(e) => update("niche", e.target.value)} />
       </div>
@@ -197,7 +197,7 @@ function ProfileForm({ profile, onSave }: { profile: VideoProfile; onSave: (p: V
       </div>
 
       <div>
-        <label className="label">Past video titles <span className="font-normal text-gray-400">— one per line</span></label>
+        <label className="label">Past video titles <span className="font-normal text-gray-400">(one per line)</span></label>
         <textarea rows={5} className="input resize-none text-sm"
           placeholder={"I built an AI agent in 30 minutes\nPython automation that saves me 3 hours a week\nWhy I stopped using ChatGPT"}
           value={form.past_titles ?? ""} onChange={(e) => update("past_titles", e.target.value)} />
