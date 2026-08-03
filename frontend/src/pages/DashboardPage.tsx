@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { postsApi, weeksApi } from "../lib/api";
+import { Link } from "react-router-dom";
+import { postsApi, profileApi, samplesApi, weeksApi } from "../lib/api";
 import type { Platform, Post, Week, WeekSummary } from "../types";
 import { AxiosError } from "axios";
 import PostCard from "../components/PostCard";
@@ -30,15 +31,27 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<PlatformTab>("linkedin");
   const [repurposing, setRepurposing] = useState<Record<string, boolean>>({});
   const [showHistory, setShowHistory] = useState(false);
+  // Voice mode — null = still loading, "samples" = has past posts, "preset" = tone only
+  const [voiceMode, setVoiceMode] = useState<"samples" | "preset" | null>(null);
+  const [tonePreset, setTonePreset] = useState<string | null>(null);
 
   const loadLatest = useCallback(async () => {
     try {
-      const [weekRes, listRes] = await Promise.allSettled([
+      const [weekRes, listRes, samplesRes, profileRes] = await Promise.allSettled([
         weeksApi.latest(),
         weeksApi.list(),
+        samplesApi.list(),
+        profileApi.get(),
       ]);
       if (weekRes.status === "fulfilled") setWeek(weekRes.value.data);
       if (listRes.status === "fulfilled") setAllWeeks(listRes.value.data);
+      if (samplesRes.status === "fulfilled") {
+        const hasSamples = samplesRes.value.data.length > 0;
+        setVoiceMode(hasSamples ? "samples" : "preset");
+      }
+      if (profileRes.status === "fulfilled") {
+        setTonePreset(profileRes.value.data.tone_preset ?? "professional");
+      }
     } catch (err) {
       if (err instanceof AxiosError && err.response?.status !== 404) {
         // non-404 errors don't wipe state
@@ -194,6 +207,27 @@ export default function DashboardPage() {
 
       {error && (
         <div className="mb-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+      )}
+
+      {/* Voice mode indicator — shown when user has no style samples */}
+      {voiceMode === "preset" && (
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3.5">
+          <svg className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-amber-800">
+              Writing in <span className="capitalize">{tonePreset ?? "professional"}</span> tone
+            </p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              Posts are generated using a preset tone, not your personal writing style.{" "}
+              <Link to="/onboarding" className="font-semibold underline hover:text-amber-900">
+                Add past posts
+              </Link>{" "}
+              to get output that sounds more like you.
+            </p>
+          </div>
+        </div>
       )}
 
       {/* Platform tabs */}

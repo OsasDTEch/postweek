@@ -18,7 +18,8 @@ import Navbar from "./components/Navbar";
  * finishes and immediately redirects to /login on every hard refresh.
  */
 function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, profileComplete } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -29,6 +30,12 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) return <Navigate to="/login" replace />;
+
+  // New user — redirect to onboarding unless they're already heading there
+  if (!profileComplete && location.pathname !== "/onboarding") {
+    return <Navigate to="/onboarding" replace />;
+  }
+
   return <>{children}</>;
 }
 
@@ -69,7 +76,7 @@ export default function App() {
   const showNavbar = user && location.pathname !== "/";
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#F7F8FA] dark:bg-gray-950 transition-colors duration-200">
       {showNavbar && <Navbar />}
       <main className="flex-1">
         <Routes>

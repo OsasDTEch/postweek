@@ -374,6 +374,29 @@ export default function VideoIdeasPage() {
 
       {error && <div className="mb-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 border border-red-100">{error}</div>}
 
+      {/* Profile completeness nudge */}
+      {profile && profile.niche && (!profile.target_audience || !profile.past_titles) && !showProfileForm && (
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3.5">
+          <svg className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-blue-800">Your profile could be more specific</p>
+            <p className="text-xs text-blue-700 mt-0.5">
+              {!profile.target_audience && !profile.past_titles
+                ? "Add your target audience and past video titles to get ideas matched to your style."
+                : !profile.target_audience
+                ? "Add your target audience so ideas are aimed at the right viewers."
+                : "Add past video titles so ideas match your existing style and format."}
+              {" "}
+              <button onClick={() => setShowProfileForm(true)} className="font-semibold underline hover:text-blue-900">
+                Update profile
+              </button>
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Profile form */}
       {showProfileForm && profile && (
         <div className="mb-8">

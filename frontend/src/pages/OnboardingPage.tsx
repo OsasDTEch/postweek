@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { profileApi, samplesApi } from "../lib/api";
 import type { Profile, StyleSample } from "../types";
 import { AxiosError } from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const TONE_PRESETS = [
   { value: "casual", label: "Casual", desc: "Conversational, like texting a smart friend" },
@@ -15,6 +16,7 @@ type Step = 1 | 2;
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
+  const { setProfileComplete } = useAuth();
   const [step, setStep] = useState<Step>(1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -84,6 +86,7 @@ export default function OnboardingPage() {
         ...form,
         tone_preset: voiceMode === "preset" ? (tonePreset as Profile["tone_preset"]) : null,
       });
+      setProfileComplete(true);
       navigate("/dashboard");
     } catch (err) {
       const msg =

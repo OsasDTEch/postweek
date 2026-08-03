@@ -4,47 +4,54 @@
 
 @layer base {
   body {
-    @apply bg-[#F7F8FA] text-gray-900 antialiased;
+    @apply bg-[#F7F8FA] text-gray-900 antialiased transition-colors duration-200;
+  }
+  .dark body {
+    @apply bg-gray-950 text-gray-100;
+  }
+  html.dark {
+    color-scheme: dark;
   }
 }
 
 @layer components {
+  /* ---- Buttons ---- */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98];
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:border-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:border-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98] dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-gray-600 transition-all hover:bg-gray-100 hover:text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-gray-600 transition-all hover:bg-gray-100 hover:text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100;
   }
 
+  /* ---- Form ---- */
   .input {
-    @apply block w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:cursor-not-allowed disabled:bg-gray-50 transition;
+    @apply block w-full rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:cursor-not-allowed disabled:bg-gray-50 transition dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-brand-400;
   }
 
   .label {
-    @apply block text-sm font-medium text-gray-700 mb-1.5;
+    @apply block text-sm font-medium text-gray-700 mb-1.5 dark:text-gray-300;
   }
 
-  /* Card with stronger shadow and crisper border */
+  /* ---- Cards ---- */
   .card {
-    @apply rounded-2xl border border-gray-200/80 bg-white shadow-[0_1px_3px_0_rgba(0,0,0,0.06),0_1px_2px_-1px_rgba(0,0,0,0.04)];
+    @apply rounded-2xl border border-gray-200/80 bg-white shadow-[0_1px_3px_0_rgba(0,0,0,0.06),0_1px_2px_-1px_rgba(0,0,0,0.04)] dark:bg-gray-900 dark:border-gray-800;
   }
 
   .card-hover {
-    @apply card transition-shadow hover:shadow-[0_4px_12px_0_rgba(0,0,0,0.08),0_2px_4px_-1px_rgba(0,0,0,0.04)];
+    @apply card transition-shadow hover:shadow-[0_4px_12px_0_rgba(0,0,0,0.08),0_2px_4px_-1px_rgba(0,0,0,0.04)] dark:hover:shadow-[0_4px_12px_0_rgba(0,0,0,0.4)];
   }
 
-  /* Section label */
+  /* ---- Labels ---- */
   .section-label {
-    @apply text-xs font-semibold uppercase tracking-widest text-gray-400;
+    @apply text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500;
   }
 
-  /* Page header */
   .page-title {
-    @apply text-2xl font-bold tracking-tight text-gray-900;
+    @apply text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100;
   }
 }
