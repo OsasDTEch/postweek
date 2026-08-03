@@ -22,6 +22,12 @@ app = FastAPI(
 origins = [settings.FRONTEND_URL]
 if settings.APP_ENV == "development":
     origins += ["http://localhost:5173", "http://127.0.0.1:5173"]
+else:
+    # Production — allow the DuckDNS domain and direct IP access
+    origins += [
+        "http://postweek.duckdns.org",
+        "http://3.22.119.126",
+    ]
 
 app.add_middleware(
     CORSMiddleware,
