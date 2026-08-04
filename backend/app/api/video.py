@@ -73,6 +73,18 @@ async def generate_ideas(
             detail="Set up your video profile first — at minimum add your niche.",
         )
 
+    # Build avoid_topics from the most recent batch so the LLM doesn't repeat titles
+    avoid_topics = ""
+    recent_result = await db.execute(
+        select(VideoIdea.title)
+        .where(VideoIdea.user_id == current_user.id)
+        .order_by(VideoIdea.created_at.desc())
+        .limit(7)
+    )
+    recent_titles = [row[0] for row in recent_result.all() if row[0]]
+    if recent_titles:
+        avoid_topics = "; ".join(recent_titles)
+
     try:
         result, model_label, _ = await generate_video_ideas(
             channel_name=profile.channel_name or "",
@@ -81,6 +93,7 @@ async def generate_ideas(
             target_audience=profile.target_audience or "",
             content_style=profile.content_style or "",
             past_titles=profile.past_titles or "",
+            avoid_topics=avoid_topics,
         )
     except RuntimeError as e:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))

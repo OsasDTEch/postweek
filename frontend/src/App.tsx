@@ -77,7 +77,7 @@ export default function App() {
   const showNavbar = user && location.pathname !== "/";
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7F8FA] dark:bg-gray-950 transition-colors duration-200">
+    <div className="min-h-screen flex flex-col bg-canvas dark:bg-[#0D0F13] transition-colors duration-200">
       {showNavbar && <Navbar />}
       <main className="flex-1">
         <Routes>

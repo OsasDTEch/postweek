@@ -15,7 +15,7 @@ from app.agents.search_tool import format_results, search_trends
 logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent.parent.parent / "prompts"
-CURRENT_VERSION = "v1"
+CURRENT_VERSION = "v2"
 TWEET_SEPARATOR = "\n---\n"
 
 VALID_FORMATS = {"opinion", "tips", "story", "hot_take", "thread_essay", "qa"}
@@ -97,6 +97,7 @@ async def generate_x_threads(
     past_tweets: str,
     preferred_formats: str,
     tone: str,
+    avoid_topics: str = "",
 ) -> tuple[XThreadsResult, str, str]:
     """
     Generate 5 native X threads.
@@ -145,6 +146,7 @@ async def generate_x_threads(
         "{preferred_formats}": preferred_formats or "opinion, tips, story",
         "{past_tweets}": past_tweets or "No past tweets provided.",
         "{trend_context}": trend_summary,
+        "{avoid_topics}": avoid_topics or "None",
     }
     prompt = template
     for key, value in replacements.items():

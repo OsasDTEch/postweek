@@ -88,6 +88,18 @@ async def generate_threads(
             detail="Set up your X profile first — add your niche at minimum.",
         )
 
+    # Build avoid_topics from the most recent batch so the LLM doesn't repeat topics
+    avoid_topics = ""
+    recent_result = await db.execute(
+        select(XThread.topic)
+        .where(XThread.user_id == current_user.id)
+        .order_by(XThread.created_at.desc())
+        .limit(5)
+    )
+    recent_topics = [row[0] for row in recent_result.all() if row[0]]
+    if recent_topics:
+        avoid_topics = "; ".join(recent_topics)
+
     try:
         result, model_label, _ = await generate_x_threads(
             handle=profile.handle or "",
@@ -96,6 +108,7 @@ async def generate_threads(
             past_tweets=profile.past_tweets or "",
             preferred_formats=profile.preferred_formats or "opinion, tips, story",
             tone=profile.tone or "conversational",
+            avoid_topics=avoid_topics,
         )
     except RuntimeError as e:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
