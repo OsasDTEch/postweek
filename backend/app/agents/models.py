@@ -59,9 +59,14 @@ class WeeklyPosts(BaseModel):
 # ---------------------------------------------------------------------------
 
 class XPostDraft(BaseModel):
-    """A repurposed LinkedIn post converted into an X thread."""
+    """A repurposed LinkedIn post converted into an X thread.
+
+    ``suggested_day`` is optional because v2 of the repurpose prompt no longer
+    asks the LLM to output it — the agent injects it from the caller's parameter
+    before constructing this object.
+    """
     pillar: str
-    suggested_day: str
+    suggested_day: str = ""   # injected by agent after parsing; not in v2 LLM output
     tweets: list[str]  # each element is one tweet, max 280 chars
 
     @field_validator("pillar")

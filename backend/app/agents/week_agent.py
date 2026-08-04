@@ -15,7 +15,7 @@ from app.agents.models import PostDraft, WeeklyPosts
 logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent.parent.parent / "prompts"
-CURRENT_PROMPT_VERSION = "v1"
+CURRENT_PROMPT_VERSION = "v2"
 
 # Pillar rotation — each week we shift the day assignment so consecutive weeks
 # don't feel identical.
@@ -45,8 +45,12 @@ PILLAR_SETS = [
 
 
 def _strip_dashes(text: str) -> str:
-    """Strip em/en dashes from generated content — replace with a space."""
-    return text.replace("\u2014", " ").replace("\u2013", " ").replace("—", " ").replace("–", " ")
+    """Strip em/en dashes — replace with '. ' so sentences stay readable."""
+    result = text.replace("\u2014", ". ").replace("\u2013", ". ").replace("—", ". ").replace("–", ". ")
+    # Collapse any double spaces left behind
+    import re as _re
+    result = _re.sub(r"  +", " ", result)
+    return result.strip()
 
 
 def _load_prompt_template(version: str) -> str:
@@ -141,6 +145,10 @@ async def generate_week(
             raw, model_label = await call_llm(messages)
             json_str = _extract_json(raw)
             data = json.loads(json_str)
+            # Apply dash-stripping to every post body before validation
+            for item in data:
+                if "body" in item:
+                    item["body"] = _strip_dashes(item["body"])
             posts = [PostDraft(**item) for item in data]
             result = WeeklyPosts(posts=posts)
             return result, model_label, CURRENT_PROMPT_VERSION

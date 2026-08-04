@@ -42,7 +42,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const complete = await checkProfileComplete();
         setProfileComplete(complete);
       })
-      .catch(() => tokenStorage.clear())
+      .catch(() => {
+        // Token invalid, expired, or server error — clear and let router redirect to /login
+        tokenStorage.clear();
+        setUser(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 

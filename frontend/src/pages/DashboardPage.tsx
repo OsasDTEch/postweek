@@ -3,344 +3,541 @@ import { Link } from "react-router-dom";
 import { postsApi, profileApi, samplesApi, weeksApi } from "../lib/api";
 import type { Platform, Post, Week, WeekSummary } from "../types";
 import { AxiosError } from "axios";
-import PostCard from "../components/PostCard";
-import XPostCard from "../components/XPostCard";
-import GenerateButton from "../components/GenerateButton";
+import LinkedInPreview from "../components/LinkedInPreview";
+import XThreadPreview from "../components/XThreadPreview";
+import { useAuth } from "../context/AuthContext";
 
-type PlatformTab = Platform;
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const TWEET_SEP = "\n---\n";
 
-function XIcon({ className }: { className?: string }) {
+const TONE_PRESETS = [
+  { value: "casual",       label: "Casual" },
+  { value: "professional", label: "Professional" },
+  { value: "contrarian",   label: "Contrarian" },
+  { value: "storyteller",  label: "Storyteller" },
+];
+
+function parseTweets(body: string): string[] {
+  return body.split(TWEET_SEP).map(t => t.trim()).filter(Boolean);
+}
+
+// ── Sidebar ──────────────────────────────────────────────────────────────────
+function Sidebar({
+  generating, week, canNextWeek, tonePreset, voiceMode,
+  onGenerate, onToneChange,
+}: {
+  generating: boolean;
+  week: Week | null;
+  canNextWeek: boolean;
+  tonePreset: string | null;
+  voiceMode: "samples" | "preset" | null;
+  onGenerate: () => void;
+  onToneChange: (tone: string) => void;
+}) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
+    <aside className="w-44 shrink-0 flex flex-col gap-5 pt-0.5">
+      {/* Voice mode badge */}
+      {voiceMode === "preset" && (
+        <div className="rounded-xl border px-3 py-2.5 space-y-2"
+          style={{ borderColor: "rgba(255,233,119,0.5)", backgroundColor: "rgba(255,233,119,0.12)" }}>
+          <p className="font-mono text-[0.5625rem] font-semibold uppercase tracking-wider text-ink/50 dark:text-[#9AA3B0]/60">
+            Tone preset
+          </p>
+          <select
+            className="w-full rounded-md border border-gray-200 dark:border-gray-700
+                       bg-white dark:bg-[#15181E] text-xs font-medium text-ink dark:text-[#F1F3F6]
+                       py-1.5 px-2 focus:outline-none focus:ring-1 focus:ring-cobalt-500/40"
+            value={tonePreset ?? "professional"}
+            onChange={(e) => onToneChange(e.target.value)}
+          >
+            {TONE_PRESETS.map(({ value, label }) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
+          </select>
+          <Link to="/onboarding"
+            className="block text-[0.6875rem] text-cobalt-600 dark:text-cobalt-400 hover:underline font-medium">
+            Add writing samples →
+          </Link>
+        </div>
+      )}
+
+      {/* Generate button */}
+      {(!week || canNextWeek) && (
+        <div>
+          <button
+            onClick={onGenerate}
+            disabled={generating}
+            className="btn-primary w-full gap-2 py-3"
+          >
+            {generating ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Generating…
+              </>
+            ) : week ? (
+              "Generate next week"
+            ) : (
+              "Generate my week"
+            )}
+          </button>
+          {!week && (
+            <p className="mt-2 font-mono text-mono-xs text-ink/30 dark:text-[#9AA3B0]/40 text-center">
+              5 posts · 5 days
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Navigation links to other tools */}
+      <div className="mt-auto pt-4 border-t border-gray-200/60 dark:border-gray-800/60 space-y-1">
+        <Link to="/x-threads"
+          className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium
+                     text-ink/50 dark:text-[#9AA3B0]/70 hover:text-ink dark:hover:text-[#F1F3F6]
+                     hover:bg-black/5 dark:hover:bg-white/5 transition">
+          <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 shrink-0">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
+          X Threads
+        </Link>
+        <Link to="/video-ideas"
+          className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium
+                     text-ink/50 dark:text-[#9AA3B0]/70 hover:text-ink dark:hover:text-[#F1F3F6]
+                     hover:bg-black/5 dark:hover:bg-white/5 transition">
+          <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          Video ideas
+        </Link>
+      </div>
+    </aside>
   );
 }
 
-function formatWeekDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+// ── Day column skeleton ───────────────────────────────────────────────────────
+function DayColumnSkeleton({ day }: { day: string }) {
+  return (
+    <div className="day-column">
+      <p className="day-header">{day}</p>
+      <div className="preview-card overflow-hidden animate-pulse">
+        <div className="p-4 flex gap-3">
+          <div className="skeleton-avatar" />
+          <div className="flex-1 space-y-2 pt-1">
+            <div className="skeleton-line w-24" />
+            <div className="skeleton-line w-36" />
+          </div>
+        </div>
+        <div className="px-4 pb-4 space-y-2">
+          <div className="skeleton-line w-full" />
+          <div className="skeleton-line w-5/6" />
+          <div className="skeleton-line w-4/6" />
+          <div className="skeleton-line w-3/4" />
+        </div>
+        <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800 flex justify-between">
+          <div className="skeleton-line w-12 h-3" />
+          <div className="skeleton-line w-24 h-3" />
+        </div>
+      </div>
+    </div>
+  );
 }
 
+// ── X thread skeleton ─────────────────────────────────────────────────────────
+function XColumnSkeleton({ day }: { day: string }) {
+  return (
+    <div className="day-column">
+      <p className="day-header">{day}</p>
+      <div className="preview-card overflow-hidden animate-pulse">
+        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex gap-3">
+          <div className="skeleton h-[18px] w-[18px] rounded" />
+          <div className="skeleton-line w-16 h-3 mt-0.5" />
+        </div>
+        <div className="px-4 pt-4 pb-2 flex gap-3">
+          <div className="flex flex-col items-center gap-1 shrink-0">
+            <div className="h-9 w-9 rounded-full skeleton" />
+            <div className="w-px h-8 skeleton" />
+          </div>
+          <div className="flex-1 space-y-2">
+            <div className="skeleton-line w-28" />
+            <div className="skeleton-line w-full" />
+            <div className="skeleton-line w-5/6" />
+          </div>
+        </div>
+        <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800 flex justify-end">
+          <div className="skeleton-line w-24 h-3" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main export ───────────────────────────────────────────────────────────────
 export default function DashboardPage() {
-  const [week, setWeek] = useState<Week | null>(null);
-  const [allWeeks, setAllWeeks] = useState<WeekSummary[]>([]);
-  const [loadingWeek, setLoadingWeek] = useState(true);
-  const [generating, setGenerating] = useState(false);
-  const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<PlatformTab>("linkedin");
+  useAuth();
+  const [week,        setWeek]        = useState<Week | null>(null);
+  const [allWeeks,    setAllWeeks]    = useState<WeekSummary[]>([]);
+  const [loading,     setLoading]     = useState(true);
+  const [generating,  setGenerating]  = useState(false);
+  const [error,       setError]       = useState("");
+  const [activeTab,   setActiveTab]   = useState<Platform>("linkedin");
   const [repurposing, setRepurposing] = useState<Record<string, boolean>>({});
   const [showHistory, setShowHistory] = useState(false);
-  // Voice mode — null = still loading, "samples" = has past posts, "preset" = tone only
-  const [voiceMode, setVoiceMode] = useState<"samples" | "preset" | null>(null);
-  const [tonePreset, setTonePreset] = useState<string | null>(null);
+  const [voiceMode,   setVoiceMode]   = useState<"samples" | "preset" | null>(null);
+  const [tonePreset,  setTonePreset]  = useState<string | null>(null);
+  const [profileName, setProfileName] = useState("You");
 
-  const loadLatest = useCallback(async () => {
-    try {
-      const [weekRes, listRes, samplesRes, profileRes] = await Promise.allSettled([
-        weeksApi.latest(),
-        weeksApi.list(),
-        samplesApi.list(),
-        profileApi.get(),
-      ]);
-      if (weekRes.status === "fulfilled") setWeek(weekRes.value.data);
-      if (listRes.status === "fulfilled") setAllWeeks(listRes.value.data);
-      if (samplesRes.status === "fulfilled") {
-        const hasSamples = samplesRes.value.data.length > 0;
-        setVoiceMode(hasSamples ? "samples" : "preset");
-      }
-      if (profileRes.status === "fulfilled") {
-        setTonePreset(profileRes.value.data.tone_preset ?? "professional");
-      }
-    } catch (err) {
-      if (err instanceof AxiosError && err.response?.status !== 404) {
-        // non-404 errors don't wipe state
-      }
-    } finally {
-      setLoadingWeek(false);
+  const load = useCallback(async () => {
+    const [wRes, listRes, sampRes, profRes] = await Promise.allSettled([
+      weeksApi.latest(), weeksApi.list(), samplesApi.list(), profileApi.get(),
+    ]);
+    if (wRes.status    === "fulfilled") setWeek(wRes.value.data);
+    if (listRes.status === "fulfilled") setAllWeeks(listRes.value.data);
+    if (sampRes.status === "fulfilled")
+      setVoiceMode(sampRes.value.data.length > 0 ? "samples" : "preset");
+    if (profRes.status === "fulfilled") {
+      const p = profRes.value.data;
+      setTonePreset(p.tone_preset ?? "professional");
+      if (p.name) setProfileName(p.name.trim());
     }
+    setLoading(false);
   }, []);
 
-  useEffect(() => { loadLatest(); }, [loadLatest]);
-
-  async function loadWeek(id: string) {
-    try {
-      const { data } = await weeksApi.get(id);
-      setWeek(data);
-      setActiveTab("linkedin");
-      setShowHistory(false);
-    } catch { /* silent */ }
-  }
+  useEffect(() => { load(); }, [load]);
 
   async function handleGenerate() {
-    setError("");
-    setGenerating(true);
+    setError(""); setGenerating(true);
     try {
       const { data } = await weeksApi.generate();
-      setWeek(data);
-      setAllWeeks((prev) => [data, ...prev]);
-      setActiveTab("linkedin");
+      setWeek(data); setAllWeeks(prev => [data, ...prev]); setActiveTab("linkedin");
     } catch (err) {
-      if (err instanceof AxiosError) {
-        setError(err.response?.data?.detail ?? "Generation failed. Please try again.");
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
-    } finally {
-      setGenerating(false);
-    }
+      setError(err instanceof AxiosError
+        ? err.response?.data?.detail ?? "Generation failed"
+        : "Something went wrong");
+    } finally { setGenerating(false); }
   }
 
-  function handlePostUpdate(updated: Post) {
-    setWeek((prev) =>
-      prev ? { ...prev, posts: prev.posts.map((p) => (p.id === updated.id ? updated : p)) } : prev
+  async function loadWeek(id: string) {
+    const { data } = await weeksApi.get(id);
+    setWeek(data); setActiveTab("linkedin"); setShowHistory(false);
+  }
+
+  function updatePost(updated: Post) {
+    setWeek(prev =>
+      prev ? { ...prev, posts: prev.posts.map(p => p.id === updated.id ? updated : p) } : prev
     );
   }
 
-  function handleXPostAdded(xPost: Post) {
-    setWeek((prev) => prev ? { ...prev, posts: [...prev.posts, xPost] } : prev);
+  async function handleEdit(post: Post, text: string)  {
+    const { data } = await postsApi.edit(post.id, text); updatePost(data);
   }
-
-  async function handleRepurpose(linkedInPostId: string) {
-    setRepurposing((prev) => ({ ...prev, [linkedInPostId]: true }));
-    setError("");
+  async function handleCopy(post: Post) {
+    await navigator.clipboard.writeText(post.edited_body ?? post.body);
+    const { data } = await postsApi.markCopied(post.id); updatePost(data);
+  }
+  async function handleRegen(post: Post, note?: string) {
+    const { data } = await postsApi.regenerate(post.id, note); updatePost(data);
+  }
+  async function handleRepurpose(postId: string) {
+    setRepurposing(p => ({ ...p, [postId]: true }));
     try {
-      const { data } = await postsApi.repurpose(linkedInPostId);
-      handleXPostAdded(data as unknown as Post);
+      const { data } = await postsApi.repurpose(postId);
+      setWeek(prev => prev ? { ...prev, posts: [...prev.posts, data as unknown as Post] } : prev);
       setActiveTab("x");
-    } catch (err) {
-      setError(err instanceof AxiosError ? err.response?.data?.detail ?? "Repurpose failed" : "Repurpose failed");
-    } finally {
-      setRepurposing((prev) => ({ ...prev, [linkedInPostId]: false }));
-    }
+    } finally { setRepurposing(p => ({ ...p, [postId]: false })); }
+  }
+  async function handleXEdit(post: Post, tweets: string[]) {
+    const { data } = await postsApi.edit(post.id, tweets.join(TWEET_SEP)); updatePost(data);
+  }
+  async function handleXCopy(post: Post) {
+    await navigator.clipboard.writeText(parseTweets(post.edited_body ?? post.body).join("\n\n"));
+    const { data } = await postsApi.markCopied(post.id); updatePost(data);
   }
 
-  const linkedInPosts = week?.posts
-    .filter((p) => p.platform === "linkedin")
-    .sort((a, b) => {
-      const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-      return days.indexOf(a.suggested_day) - days.indexOf(b.suggested_day);
-    }) ?? [];
+  const liPosts = (week?.posts.filter(p => p.platform === "linkedin") ?? [])
+    .sort((a, b) => DAYS.indexOf(a.suggested_day) - DAYS.indexOf(b.suggested_day));
+  const xPosts = (week?.posts.filter(p => p.platform === "x") ?? [])
+    .sort((a, b) => DAYS.indexOf(a.suggested_day) - DAYS.indexOf(b.suggested_day));
 
-  const xPosts = week?.posts
-    .filter((p) => p.platform === "x")
-    .sort((a, b) => {
-      const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-      return days.indexOf(a.suggested_day) - days.indexOf(b.suggested_day);
-    }) ?? [];
+  const copied    = liPosts.filter(p => p.status === "copied").length;
+  const weekAge   = week ? Date.now() - new Date(week.created_at).getTime() : 0;
+  const weekOld   = weekAge > 6 * 24 * 60 * 60 * 1000;
+  const canNextWeek = !!(week && (copied >= 3 || weekOld));
 
-  const copiedLinkedIn = linkedInPosts.filter((p) => p.status === "copied").length;
-  const weekAgeMs = week ? Date.now() - new Date(week.created_at).getTime() : 0;
-  const weekIsOld = weekAgeMs > 6 * 24 * 60 * 60 * 1000;
-  const showNextWeek = week && (copiedLinkedIn >= 3 || weekIsOld);
-
-  if (loadingWeek) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex h-screen items-center justify-center">
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-cobalt-500 border-t-transparent" />
+    </div>
+  );
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
+    <div className="mx-auto max-w-[1120px] px-4 py-8">
 
-      {/* Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      {/* ── Page header ── */}
+      <div className="mb-8 flex items-start justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="page-title">This week's posts</h1>
-            {/* Week history picker */}
-            {allWeeks.length > 1 && (
-              <div className="relative">
-                <button
-                  onClick={() => setShowHistory((v) => !v)}
-                  className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition shadow-sm"
-                >
-                  History
-                  <svg className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                  </svg>
-                </button>
-
-                {showHistory && (
-                  <div className="absolute left-0 top-full mt-1 z-50 w-64 rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
-                    <p className="px-4 py-2.5 text-xs font-semibold text-gray-400 uppercase tracking-wide border-b border-gray-100">
-                      Past weeks
-                    </p>
-                    <div className="max-h-64 overflow-y-auto">
-                      {allWeeks.map((w, idx) => (
-                        <button
-                          key={w.id}
-                          onClick={() => loadWeek(w.id)}
-                          className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition border-b border-gray-50 last:border-0 ${
-                            w.id === week?.id ? "bg-brand-50 text-brand-700 font-medium" : "text-gray-700"
-                          }`}
-                        >
-                          <span className="font-medium">{idx === 0 ? "This week" : `Week ${allWeeks.length - idx}`}</span>
-                          <span className="ml-2 text-gray-400 text-xs">{formatWeekDate(w.created_at)}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          {!week ? (
+            <h1 className="display text-4xl md:text-5xl text-ink dark:text-[#F1F3F6] leading-tight">
+              Your week is unwritten.
+            </h1>
+          ) : (
+            <h1 className="display text-3xl text-ink dark:text-[#F1F3F6]">
+              {profileName !== "You" ? `${profileName.trimEnd()}'s week` : "Your week"}
+            </h1>
+          )}
           {week && (
-            <p className="mt-1 text-sm text-gray-500">
-              {copiedLinkedIn}/5 copied · <span className="font-medium">{week.model_used ?? "AI"}</span>
-              {weekIsOld && <span className="ml-2 text-amber-600 font-medium">· Ready for next week</span>}
+            <p className="mt-1.5 font-mono text-mono-sm text-ink/40 dark:text-[#9AA3B0]/60 flex items-center gap-2 flex-wrap">
+              <span className="highlight-mark">{copied}/5 copied</span>
+              <span>·</span>
+              <span>{week.model_used ?? "AI"}</span>
+              {weekOld && <span className="text-amber-500">· Ready for next week</span>}
             </p>
           )}
         </div>
 
-        {(!week || showNextWeek) && (
-          <GenerateButton
-            loading={generating}
-            label={week ? "Generate next week" : "Generate my week"}
-            onClick={handleGenerate}
-            className="shrink-0"
-          />
+        {/* History dropdown */}
+        {allWeeks.length > 1 && (
+          <div className="relative shrink-0">
+            <button onClick={() => setShowHistory(v => !v)}
+              className="btn-secondary text-sm gap-1.5">
+              History
+              <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+              </svg>
+            </button>
+            {showHistory && (
+              <div className="absolute right-0 top-full mt-1 z-50 w-56 card shadow-lg overflow-hidden">
+                {allWeeks.map((w, i) => (
+                  <button key={w.id} onClick={() => loadWeek(w.id)}
+                    className={`w-full text-left px-4 py-2.5 text-sm font-medium transition
+                      hover:bg-gray-50 dark:hover:bg-gray-800/60
+                      border-b border-gray-50 dark:border-gray-800/60 last:border-0
+                      ${w.id === week?.id
+                        ? "text-cobalt-600 dark:text-cobalt-400 bg-cobalt-50/50 dark:bg-cobalt-900/20"
+                        : "text-ink/80 dark:text-[#F1F3F6]/70"}`}>
+                    {i === 0 ? "This week" : `Week ${allWeeks.length - i}`}
+                    <span className="ml-2 font-mono text-mono-xs text-ink/30 dark:text-[#9AA3B0]/40">
+                      {new Date(w.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
 
       {error && (
-        <div className="mb-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className="mb-6 banner-error">{error}</div>
       )}
 
-      {/* Voice mode indicator — shown when user has no style samples */}
-      {voiceMode === "preset" && (
-        <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3.5">
-          <svg className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+      {/* ── Empty state ── */}
+      {!week && !generating && (
+        <div className="flex flex-col items-center justify-center py-32 text-center">
+          <p className="text-sm text-ink/40 dark:text-[#9AA3B0]/60 max-w-xs mb-8">
+            Set up your profile, then generate. Five posts, five days, your voice.
+          </p>
+          <button onClick={handleGenerate} disabled={generating}
+            className="btn-primary px-8 py-3 text-base">
+            Generate my week
+          </button>
+        </div>
+      )}
+
+      {/* ── Main layout: sidebar + week rail ── */}
+      {(week || generating) && (
+        <div className="flex gap-8">
+
+          {/* Sidebar */}
+          <div className="hidden lg:block">
+            <Sidebar
+              generating={generating}
+              week={week}
+              canNextWeek={canNextWeek}
+              tonePreset={tonePreset}
+              voiceMode={voiceMode}
+              onGenerate={handleGenerate}
+              onToneChange={setTonePreset}
+            />
+          </div>
+
+          {/* Main content area */}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-amber-800">
-              Writing in <span className="capitalize">{tonePreset ?? "professional"}</span> tone
-            </p>
-            <p className="text-xs text-amber-700 mt-0.5">
-              Posts are generated using a preset tone, not your personal writing style.{" "}
-              <Link to="/onboarding" className="font-semibold underline hover:text-amber-900">
-                Add past posts
-              </Link>{" "}
-              to get output that sounds more like you.
-            </p>
+
+            {/* Platform tabs */}
+            <div className="mb-6 flex gap-1 border-b border-gray-200 dark:border-gray-800">
+              {([
+                { id: "linkedin" as Platform, label: "LinkedIn", count: liPosts.length },
+                { id: "x"        as Platform, label: "X Threads", count: xPosts.length },
+              ]).map(({ id, label, count }) => (
+                <button key={id} onClick={() => setActiveTab(id)}
+                  className={`relative pb-3 px-1 text-sm font-semibold transition mr-6 ${
+                    activeTab === id
+                      ? "text-cobalt-600 dark:text-cobalt-400"
+                      : "text-ink/40 dark:text-[#9AA3B0]/60 hover:text-ink/70 dark:hover:text-[#9AA3B0]"
+                  }`}>
+                  {label}
+                  {count > 0 && (
+                    <span className={`ml-1.5 font-mono text-mono-xs px-1.5 py-0.5 rounded-full ${
+                      activeTab === id
+                        ? "bg-cobalt-50 dark:bg-cobalt-900/40 text-cobalt-600 dark:text-cobalt-400"
+                        : "bg-gray-100 dark:bg-gray-800 text-ink/40 dark:text-[#9AA3B0]/60"
+                    }`}>{count}</span>
+                  )}
+                  {activeTab === id && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-cobalt-500 rounded-full" />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Mobile generate button */}
+            {(!week || canNextWeek) && (
+              <div className="lg:hidden mb-6">
+                <button onClick={handleGenerate} disabled={generating} className="btn-primary w-full gap-2">
+                  {generating
+                    ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />Generating…</>
+                    : week ? "Generate next week" : "Generate my week"}
+                </button>
+              </div>
+            )}
+
+            {/* Generating skeletons */}
+            {generating && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+                {DAYS.map(day =>
+                  activeTab === "linkedin"
+                    ? <DayColumnSkeleton key={day} day={day} />
+                    : <XColumnSkeleton  key={day} day={day} />
+                )}
+              </div>
+            )}
+
+            {/* ── LinkedIn week rail ── */}
+            {week && !generating && activeTab === "linkedin" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+                {DAYS.map(day => {
+                  const post   = liPosts.find(p => p.suggested_day === day);
+                  const xPost  = post ? xPosts.find(x =>
+                    x.pillar === post.pillar && x.suggested_day === post.suggested_day
+                  ) : null;
+
+                  return (
+                    <div key={day} className="day-column">
+                      <p className="day-header">{day}</p>
+                      {post ? (
+                        <>
+                          <LinkedInPreview
+                            name={profileName}
+                            headline="Founder · PostWeek"
+                            body={post.edited_body ?? post.body}
+                            pillar={post.pillar}
+                            suggestedDay={post.suggested_day}
+                            status={post.status}
+                            compact={true}
+                            onEdit={(text) => handleEdit(post, text)}
+                            onCopy={() => handleCopy(post)}
+                            onRegen={(note) => handleRegen(post, note)}
+                          />
+                          {/* Repurpose to X nudge */}
+                          <div className="mt-1.5 flex justify-end">
+                            {!xPost ? (
+                              <button
+                                onClick={() => handleRepurpose(post.id)}
+                                disabled={repurposing[post.id]}
+                                className="flex items-center gap-1.5 text-xs font-medium
+                                           text-ink/35 dark:text-[#9AA3B0]/50
+                                           hover:text-ink/60 dark:hover:text-[#9AA3B0]
+                                           transition disabled:opacity-40 min-h-[40px] px-1"
+                              >
+                                {repurposing[post.id]
+                                  ? <><span className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />Converting…</>
+                                  : <>
+                                    <svg viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3 shrink-0">
+                                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                                    </svg>
+                                    Repurpose as X thread
+                                  </>
+                                }
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => setActiveTab("x")}
+                                className="flex items-center gap-1.5 text-xs font-medium
+                                           text-green-600 dark:text-green-400
+                                           hover:text-green-700 transition min-h-[40px] px-1"
+                              >
+                                <svg viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3 shrink-0">
+                                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                                </svg>
+                                X thread ready
+                              </button>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="preview-card p-4 flex items-center justify-center min-h-[140px]">
+                          <p className="font-mono text-mono-xs text-ink/20 dark:text-[#9AA3B0]/30 text-center">
+                            No post<br />for {day}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* ── X Threads week rail ── */}
+            {week && !generating && activeTab === "x" && (
+              <>
+                {xPosts.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <p className="text-sm text-ink/40 dark:text-[#9AA3B0]/60 max-w-xs mb-4">
+                      Go to LinkedIn tab and tap "Repurpose as X thread" on any post.
+                    </p>
+                    <button onClick={() => setActiveTab("linkedin")}
+                      className="btn-secondary text-sm">
+                      View LinkedIn posts
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+                    {DAYS.map(day => {
+                      const post = xPosts.find(p => p.suggested_day === day);
+                      return (
+                        <div key={day} className="day-column">
+                          <p className="day-header">{day}</p>
+                          {post ? (
+                            <XThreadPreview
+                              tweets={parseTweets(post.edited_body ?? post.body)}
+                              suggestedDay={post.suggested_day}
+                              status={post.status}
+                              compact={true}
+                              onCopyAll={() => handleXCopy(post)}
+                              onEdit={(tweets) => handleXEdit(post, tweets)}
+                              onRegen={async () => {
+                                const { data } = await postsApi.reRepurpose(post.id);
+                                updatePost(data as unknown as Post);
+                              }}
+                            />
+                          ) : (
+                            <div className="preview-card p-4 flex items-center justify-center min-h-[140px]">
+                              <p className="font-mono text-mono-xs text-ink/20 dark:text-[#9AA3B0]/30 text-center">
+                                Not repurposed
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
+
           </div>
         </div>
       )}
 
-      {/* Platform tabs */}
-      {week && !generating && (
-        <div className="mb-6 flex rounded-xl border border-gray-200 bg-gray-50 p-1 gap-1">
-          <button
-            onClick={() => setActiveTab("linkedin")}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2 text-sm font-medium transition ${
-              activeTab === "linkedin" ? "bg-white text-brand-700 shadow-sm" : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-            </svg>
-            LinkedIn
-            {linkedInPosts.length > 0 && (
-              <span className="rounded-full bg-brand-100 px-1.5 py-0.5 text-xs font-semibold text-brand-700">
-                {linkedInPosts.length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("x")}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2 text-sm font-medium transition ${
-              activeTab === "x" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <XIcon className="h-3.5 w-3.5" />
-            X Threads
-            {xPosts.length > 0 && (
-              <span className="rounded-full bg-gray-200 px-1.5 py-0.5 text-xs font-semibold text-gray-700">
-                {xPosts.length}
-              </span>
-            )}
-          </button>
-        </div>
-      )}
-
-      {/* Empty state */}
-      {!week && !generating && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 py-20 text-center">
-          <h2 className="text-base font-semibold text-gray-800 mb-2">No posts yet</h2>
-          <p className="text-sm text-gray-500 max-w-xs mb-6">
-            Generate your first week of posts — LinkedIn, X, and video ideas — all matched to your voice.
-          </p>
-          <GenerateButton loading={generating} label="Generate my week" onClick={handleGenerate} />
-        </div>
-      )}
-
-      {/* Generating skeleton */}
-      {generating && (
-        <div className="space-y-4">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="card h-44 animate-pulse bg-gray-100" />
-          ))}
-        </div>
-      )}
-
-      {/* LinkedIn tab */}
-      {week && !generating && activeTab === "linkedin" && (
-        <div className="space-y-4">
-          {linkedInPosts.map((post) => {
-            const hasX = xPosts.some((x) => x.pillar === post.pillar && x.suggested_day === post.suggested_day);
-            return (
-              <div key={post.id}>
-                <PostCard post={post} onUpdate={handlePostUpdate} />
-                <div className="mt-1 flex justify-end">
-                  {!hasX ? (
-                    <button
-                      onClick={() => handleRepurpose(post.id)}
-                      disabled={repurposing[post.id]}
-                      className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition disabled:opacity-50"
-                    >
-                      {repurposing[post.id] ? (
-                        <><span className="h-3 w-3 animate-spin rounded-full border border-gray-400 border-t-transparent" />Converting…</>
-                      ) : (
-                        <><XIcon className="h-3 w-3" />Repurpose as X thread</>
-                      )}
-                    </button>
-                  ) : (
-                    <button onClick={() => setActiveTab("x")}
-                      className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-green-600 hover:bg-green-50 transition">
-                      <XIcon className="h-3 w-3" />X thread ready
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* X tab */}
-      {week && !generating && activeTab === "x" && (
-        <div className="space-y-4">
-          {xPosts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 py-16 text-center">
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
-                <XIcon className="h-5 w-5 text-gray-500" />
-              </div>
-              <h2 className="text-sm font-semibold text-gray-800 mb-1">No X threads yet</h2>
-              <p className="text-sm text-gray-500 max-w-xs mb-4">Go to LinkedIn tab and click "Repurpose as X thread".</p>
-              <button onClick={() => setActiveTab("linkedin")} className="btn-secondary text-xs px-4 py-2">
-                View LinkedIn posts
-              </button>
-            </div>
-          ) : (
-            xPosts.map((post) => (
-              <XPostCard key={post.id} post={post} onUpdate={handlePostUpdate} />
-            ))
-          )}
-        </div>
-      )}
     </div>
   );
 }

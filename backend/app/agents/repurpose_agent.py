@@ -12,7 +12,7 @@ from app.agents.models import XPostDraft
 logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent.parent.parent / "prompts"
-CURRENT_VERSION = "v1"
+CURRENT_VERSION = "v2"
 
 
 def _load_template(version: str) -> str:
@@ -83,6 +83,9 @@ async def repurpose_to_x(
             raw, model_label = await call_llm(messages)
             json_str = _extract_json(raw)
             data = json.loads(json_str)
+            # v2 prompt no longer asks the LLM to output suggested_day —
+            # inject it from the caller's parameter so XPostDraft validates cleanly.
+            data["suggested_day"] = suggested_day
             draft = XPostDraft(**data)
             return draft, model_label
         except Exception as e:

@@ -15,7 +15,15 @@ from app.agents.models import PostDraft
 logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent.parent.parent / "prompts"
-CURRENT_REGEN_VERSION = "v1"
+CURRENT_REGEN_VERSION = "v2"
+
+
+def _strip_dashes(text: str) -> str:
+    """Strip em/en dashes — replace with '. ' so sentences stay readable."""
+    import re as _re
+    result = text.replace("\u2014", ". ").replace("\u2013", ". ").replace("—", ". ").replace("–", ". ")
+    result = _re.sub(r"  +", " ", result)
+    return result.strip()
 
 
 def _load_prompt_template(version: str) -> str:
@@ -96,6 +104,8 @@ async def regenerate_post(
             raw, model_label = await call_llm(messages)
             json_str = _extract_json(raw)
             data = json.loads(json_str)
+            if "body" in data:
+                data["body"] = _strip_dashes(data["body"])
             draft = PostDraft(**data)
             return draft, model_label
         except Exception as e:

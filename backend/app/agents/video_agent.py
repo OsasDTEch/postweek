@@ -17,7 +17,7 @@ from app.agents.search_tool import format_results, search_trends
 logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent.parent.parent / "prompts"
-CURRENT_VERSION = "v1"
+CURRENT_VERSION = "v2"
 
 VALID_FORMATS = {"tutorial", "opinion", "story", "list", "experiment", "review", "reaction"}
 
@@ -82,6 +82,9 @@ def _clean_draft(draft: VideoIdeaDraft) -> VideoIdeaDraft:
         format=draft.format,
         trend_context=_strip_dashes(draft.trend_context),
     )
+
+
+def _load_template(version: str) -> str:
     path = PROMPTS_DIR / f"video_ideas_{version}.txt"
     return path.read_text(encoding="utf-8")
 
@@ -109,6 +112,7 @@ async def generate_video_ideas(
     target_audience: str,
     content_style: str,
     past_titles: str,
+    avoid_topics: str = "",
 ) -> tuple[VideoIdeasResult, str, str]:
     """
     Generate video ideas using live trend data.
@@ -164,6 +168,7 @@ async def generate_video_ideas(
         "{content_style}": content_style or "mixed",
         "{past_titles}": past_titles or "No past titles provided.",
         "{trend_context}": trend_summary,
+        "{avoid_topics}": avoid_topics or "None",
     }
     prompt = template
     for key, value in replacements.items():
